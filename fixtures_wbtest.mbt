@@ -1,4 +1,5 @@
 // Synthetic fixtures from the pinned reference; see fixtures/README.md.
+
 ///|
 test "reference fixture float-intel" {
   let t = read(

@@ -53,6 +53,7 @@ pub fn inspect(
 ) -> Layout raise C3dError {
   let h = read_header(bytes, limits~)
   let m = read_metadata(bytes, limits~)
+  verify_extended_frames(m, h)
   let nchan = if h.analog_per_frame == 0 {
     0
   } else {
@@ -166,3 +167,40 @@ pub extend Layout with @debug.Debug::{to_repr}
 
 ///|
 pub extend Layout with Eq::{equal, not_equal}
+
+///|
+fn verify_extended_frames(m : Metadata, h : Header) -> Unit raise C3dError {
+  require(
+    scalar(
+      m,
+      "POINT",
+      "LONG_FRAMES",
+      (h.last_frame - h.first_frame + 1).to_double(),
+    ) ==
+    (h.last_frame - h.first_frame + 1).to_double(),
+    "extended frame counts unsupported",
+  )
+  for name in ["ACTUAL_START_FIELD", "ACTUAL_END_FIELD"] {
+    match m.find("TRIAL", name) {
+      None => ()
+      Some(p) => {
+        require(
+          p.element_size == 2 && p.data.length() == 4,
+          "invalid extended frame field",
+        )
+        let c = Cursor::new(p.data, 0, 4, p.big_endian)
+        let low = c.u16().to_double()
+        let value = low + c.u16().to_double() * 65536.0
+        let expected = if name == "ACTUAL_START_FIELD" {
+          h.first_frame
+        } else {
+          h.last_frame
+        }
+        require(
+          value == expected.to_double(),
+          "extended frame numbering unsupported",
+        )
+      }
+    }
+  }
+}

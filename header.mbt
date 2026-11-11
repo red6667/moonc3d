@@ -12,7 +12,7 @@ pub(all) struct Limits {
 pub fn Limits::default() -> Limits {
   {
     max_bytes: 67108864,
-    max_frames: 100000,
+    max_frames: 65535,
     max_points: 1024,
     max_channels: 1024,
     max_samples: 4000000,
@@ -39,6 +39,7 @@ pub fn read_header(
   bytes : Bytes,
   limits~ : Limits = Limits::default(),
 ) -> Header raise C3dError {
+  validate_limits(limits)
   require(
     limits.max_bytes >= 512 && bytes.length() <= limits.max_bytes,
     "file byte budget exceeded",
@@ -112,3 +113,22 @@ pub extend Header with @debug.Debug::{to_repr}
 
 ///|
 pub extend Header with Eq::{equal, not_equal}
+
+///|
+fn validate_limits(limits : Limits) -> Unit raise C3dError {
+  require(
+    limits.max_bytes >= 512 &&
+    limits.max_bytes <= 268435456 &&
+    limits.max_frames > 0 &&
+    limits.max_frames <= 65535 &&
+    limits.max_points >= 0 &&
+    limits.max_points <= 65535 &&
+    limits.max_channels >= 0 &&
+    limits.max_channels <= 65535 &&
+    limits.max_samples > 0 &&
+    limits.max_samples <= 67108864 &&
+    limits.max_parameters > 0 &&
+    limits.max_parameters <= 32767,
+    "invalid or unsafe resource limits",
+  )
+}

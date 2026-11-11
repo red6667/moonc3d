@@ -30,6 +30,7 @@ pub fn Trial::validate(
   self : Trial,
   limits~ : Limits = Limits::default(),
 ) -> Unit raise C3dError {
+  validate_limits(limits)
   require(
     self.first_frame >= 1 &&
     self.frames.length() > 0 &&
@@ -57,6 +58,14 @@ pub fn Trial::validate(
   require(
     (self.analog_labels.length() == 0) == (self.analog_per_frame == 0),
     "analog rate/channel mismatch",
+  )
+  require(
+    self.labels.length() <= limits.max_samples / 4 &&
+    (
+      self.analog_per_frame == 0 ||
+      self.analog_labels.length() <= limits.max_samples / self.analog_per_frame
+    ),
+    "trial frame sample budget exceeded",
   )
   let per_frame = self.labels.length() * 4 +
     self.analog_labels.length() * self.analog_per_frame
