@@ -6,6 +6,8 @@ import {
 }
 
 // Values
+pub fn decode_point_record(Bytes, Double, big_endian? : Bool) -> Point raise C3dError
+
 pub fn inspect(Bytes, limits? : Limits) -> Layout raise C3dError
 
 pub fn read_header(Bytes, limits? : Limits) -> Header raise C3dError
