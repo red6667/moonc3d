@@ -1,0 +1,8 @@
+{
+  "repository": "EmbodiedCognition/py-c3d",
+  "commit": "b3060462bf3566f69de76a9d3f915073c41dc8a7",
+  "sha256": {
+    "c3d.py": "01dbee484a11318e706aa1de573f75a55c586d7786cb711607b692a141dcd5c0",
+    "__init__.py": "8ece5514712e820a0f4fd6081e2b8e680acbd1a53ea4ff93d3dc6ae1b9ff0293"
+  }
+}

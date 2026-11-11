@@ -15,6 +15,7 @@ fn canonical_metadata(
     number_parameter("POINT", "SCALE", [-residual_scale], false),
     number_parameter("POINT", "RATE", [t.point_rate], false),
     text_parameter("POINT", "LABELS", t.labels),
+    text_parameter("POINT", "DESCRIPTIONS", Array::make(t.labels.length(), "")),
     text_parameter("POINT", "UNITS", [t.units]),
     number_parameter(
       "ANALOG",
@@ -42,6 +43,11 @@ fn canonical_metadata(
       true,
     ),
     text_parameter("ANALOG", "LABELS", t.analog_labels),
+    text_parameter(
+      "ANALOG",
+      "DESCRIPTIONS",
+      Array::make(t.analog_labels.length(), ""),
+    ),
     text_parameter("ANALOG", "FORMAT", ["SIGNED"]),
   ]
   // Preserve only independent groups: channel/event metadata may become stale after edits.

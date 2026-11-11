@@ -1,12 +1,24 @@
 ///|
+#cfg(target="js")
+fn argument_offset() -> Int32 {
+  2
+}
+
+///|
+#cfg(not(target="js"))
+fn argument_offset() -> Int32 {
+  1
+}
+
+///|
 fn main {
   let args = @env.args()
-  if args.length() != 1 {
+  if args.length() != argument_offset() + 1 {
     println(
       "{\"error\":\"pass one moonc3d/1 JSON request argument; see README\"}",
     )
   } else {
-    println(@moonc3d.process_json(args[0])) catch {
+    println(@moonc3d.process_json(args[argument_offset()])) catch {
       error =>
         println(
           Json::object({ "error": Json::string(@debug.to_string(error)) }).stringify(),
