@@ -1,7 +1,12 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "red6667/moonc3d"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
+pub fn read_header(Bytes, limits? : Limits) -> Header raise C3dError
 
 // Errors
 pub suberror C3dError {
@@ -9,6 +14,28 @@ pub suberror C3dError {
 } derive(Show)
 
 // Types and methods
+pub(all) struct Header {
+  parameter_block : Int32
+  data_block : Int32
+  point_count : Int32
+  analog_values : Int32
+  first_frame : Int32
+  last_frame : Int32
+  analog_per_frame : Int32
+  frame_rate : Double
+  scale : Double
+  processor : Int32
+} derive(Eq, @debug.Debug)
+
+pub(all) struct Limits {
+  max_bytes : Int32
+  max_frames : Int32
+  max_points : Int32
+  max_channels : Int32
+  max_samples : Int32
+  max_parameters : Int32
+} derive(Eq, @debug.Debug)
+pub fn Limits::default() -> Self
 
 // Type aliases
 
