@@ -6,6 +6,8 @@ import {
 }
 
 // Values
+pub fn inspect(Bytes, limits? : Limits) -> Layout raise C3dError
+
 pub fn read_header(Bytes, limits? : Limits) -> Header raise C3dError
 
 pub fn read_metadata(Bytes, limits? : Limits) -> Metadata raise C3dError
@@ -39,6 +41,18 @@ pub(all) struct Header {
   frame_rate : Double
   scale : Double
   processor : Int32
+} derive(Eq, @debug.Debug)
+
+pub(all) struct Layout {
+  header : Header
+  metadata : Metadata
+  labels : Array[String]
+  analog_labels : Array[String]
+  units : String
+  analog_scales : Array[Double]
+  analog_offsets : Array[Double]
+  unsigned_analog : Bool
+  frame_bytes : Int32
 } derive(Eq, @debug.Debug)
 
 pub(all) struct Limits {
