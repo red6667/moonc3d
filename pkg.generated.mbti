@@ -8,6 +8,8 @@ import {
 // Values
 pub fn read_header(Bytes, limits? : Limits) -> Header raise C3dError
 
+pub fn read_metadata(Bytes, limits? : Limits) -> Metadata raise C3dError
+
 // Errors
 pub suberror C3dError {
   Invalid(String)
