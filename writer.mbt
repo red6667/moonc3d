@@ -1,5 +1,9 @@
 ///|
-fn canonical_metadata(t : Trial, data_block : Int32) -> Metadata raise C3dError {
+fn canonical_metadata(
+  t : Trial,
+  data_block : Int32,
+  residual_scale : Double,
+) -> Metadata raise C3dError {
   let groups : Array[Group] = [
     { id: 1, name: "POINT", description: "3D points", locked: false, },
     { id: 2, name: "ANALOG", description: "Calibrated analog", locked: false, },
@@ -8,7 +12,7 @@ fn canonical_metadata(t : Trial, data_block : Int32) -> Metadata raise C3dError 
     number_parameter("POINT", "USED", [t.labels.length().to_double()], true),
     number_parameter("POINT", "FRAMES", [t.frames.length().to_double()], true),
     number_parameter("POINT", "DATA_START", [data_block.to_double()], true),
-    number_parameter("POINT", "SCALE", [-1.0], false),
+    number_parameter("POINT", "SCALE", [-residual_scale], false),
     number_parameter("POINT", "RATE", [t.point_rate], false),
     text_parameter("POINT", "LABELS", t.labels),
     text_parameter("POINT", "UNITS", [t.units]),
@@ -85,16 +89,25 @@ fn metadata_bytes(m : Metadata) -> Bytes raise C3dError {
 ///|
 pub fn write(
   trial : Trial,
+  residual_scale~ : Double = 1.0,
   limits~ : Limits = Limits::default(),
 ) -> Bytes raise C3dError {
   trial.validate(limits~)
   require(
+    finite(residual_scale) &&
+    residual_scale > 0.0 &&
+    Float::from_double(residual_scale).to_double() == residual_scale,
+    "residual scale must be positive exactly representable float32",
+  )
+  require(
     trial.labels.length() <= 255 && trial.analog_labels.length() <= 255,
     "canonical writer supports at most 255 channels of each kind",
   )
-  let preliminary = metadata_bytes(canonical_metadata(trial, 0))
+  let preliminary = metadata_bytes(canonical_metadata(trial, 0, residual_scale))
   let data_block = 2 + preliminary.length() / 512
-  let metadata = metadata_bytes(canonical_metadata(trial, data_block))
+  let metadata = metadata_bytes(
+    canonical_metadata(trial, data_block, residual_scale),
+  )
   let frame_values = trial.labels.length() * 4 +
     trial.analog_labels.length() * trial.analog_per_frame
   require(
@@ -116,7 +129,7 @@ pub fn write(
   put16(header, trial.first_frame)
   put16(header, trial.first_frame + trial.frames.length() - 1)
   put16(header, 0)
-  put32f(header, -1.0)
+  put32f(header, -residual_scale)
   put16(header, data_block)
   put16(header, trial.analog_per_frame)
   put32f(header, trial.point_rate)
@@ -131,10 +144,11 @@ pub fn write(
         -1
       } else {
         require(
-          p.residual <= 255.0 && p.residual == p.residual.trunc(),
-          "canonical scale1 residual must be integer in 0..255",
+          p.residual / residual_scale <= 255.0 &&
+          p.residual / residual_scale == (p.residual / residual_scale).trunc(),
+          "residual must be an exact multiple of scale in 0..255 units",
         )
-        (p.cameras << 8) | p.residual.to_int()
+        (p.cameras << 8) | (p.residual / residual_scale).to_int()
       }
       put32f(header, packed.to_double())
     }

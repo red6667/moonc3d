@@ -100,3 +100,18 @@ fn scalar(
     }
   }
 }
+
+// Some legacy C3D header-compatible counters store unsigned values in int16 parameters.
+
+///|
+fn counter(
+  m : Metadata,
+  name : String,
+  default : Double,
+) -> Double raise C3dError {
+  let x = scalar(m, "POINT", name, default)
+  match m.find("POINT", name) {
+    Some(p) if p.element_size == 2 && x < 0.0 => x + 65536.0
+    _ => x
+  }
+}

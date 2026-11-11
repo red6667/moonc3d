@@ -64,12 +64,12 @@ pub fn inspect(
     "POINT:USED disagrees with header",
   )
   require(
-    scalar(m, "POINT", "FRAMES", (h.last_frame - h.first_frame + 1).to_double()) ==
+    counter(m, "FRAMES", (h.last_frame - h.first_frame + 1).to_double()) ==
     (h.last_frame - h.first_frame + 1).to_double(),
     "extended/inconsistent POINT:FRAMES unsupported",
   )
   require(
-    scalar(m, "POINT", "DATA_START", h.data_block.to_double()) ==
+    counter(m, "DATA_START", h.data_block.to_double()) ==
     h.data_block.to_double(),
     "POINT:DATA_START disagrees with header",
   )

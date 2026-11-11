@@ -18,7 +18,7 @@ pub fn read_header(Bytes, limits? : Limits) -> Header raise C3dError
 
 pub fn read_metadata(Bytes, limits? : Limits) -> Metadata raise C3dError
 
-pub fn write(Trial, limits? : Limits) -> Bytes raise C3dError
+pub fn write(Trial, residual_scale? : Double, limits? : Limits) -> Bytes raise C3dError
 
 // Errors
 pub suberror C3dError {

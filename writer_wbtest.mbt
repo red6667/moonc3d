@@ -20,3 +20,33 @@ test "canonical writer roundtrip points invalid samples analog and frame number"
   assert_eq(r.analog_labels, ["Fx", "EMG"])
   assert_eq(b.length() % 512, 0)
 }
+
+///|
+test "fractional residuals are preserved with explicit scale" {
+  let t = sample_trial()
+  let r = read(write(t, residual_scale=0.5))
+  assert_eq(r.frames, t.frames)
+  assert_true(
+    try {
+      let _ = write(t)
+      false
+    } catch {
+      _ => true
+    },
+  )
+  assert_true(
+    try {
+      let _ = write(t, residual_scale=0.1)
+      false
+    } catch {
+      _ => true
+    },
+  )
+}
+
+///|
+test "unsigned POINT frame count interpretation" {
+  let p = number_parameter("POINT", "FRAMES", [40000.0], true)
+  let m : Metadata = { groups: [], parameters: [p], }
+  assert_eq(counter(m, "FRAMES", 0.0), 40000.0)
+}
