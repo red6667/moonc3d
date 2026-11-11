@@ -110,7 +110,10 @@ pub(all) struct Trial {
   metadata : Metadata
   frames : Array[Frame]
 } derive(Eq, @debug.Debug)
+pub fn Trial::crop(Self, Int32, Int32) -> Self raise C3dError
 pub fn Trial::duration(Self) -> Double
+pub fn Trial::frame_time(Self, Int32) -> Double raise C3dError
+pub fn Trial::time_window(Self, Double, Double) -> Self raise C3dError
 pub fn Trial::validate(Self, limits? : Limits) -> Unit raise C3dError
 
 // Type aliases
