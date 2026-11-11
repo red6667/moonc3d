@@ -14,6 +14,13 @@ pub suberror C3dError {
 } derive(Show)
 
 // Types and methods
+pub(all) struct Group {
+  id : Int32
+  name : String
+  description : String
+  locked : Bool
+} derive(Eq, @debug.Debug)
+
 pub(all) struct Header {
   parameter_block : Int32
   data_block : Int32
@@ -36,6 +43,25 @@ pub(all) struct Limits {
   max_parameters : Int32
 } derive(Eq, @debug.Debug)
 pub fn Limits::default() -> Self
+
+pub(all) struct Metadata {
+  groups : Array[Group]
+  parameters : Array[Parameter]
+} derive(Eq, @debug.Debug)
+pub fn Metadata::find(Self, String, String) -> Parameter?
+
+pub(all) struct Parameter {
+  group : String
+  name : String
+  description : String
+  locked : Bool
+  element_size : Int32
+  dimensions : Array[Int32]
+  data : Bytes
+  big_endian : Bool
+} derive(Eq, @debug.Debug)
+pub fn Parameter::numbers(Self) -> Array[Double] raise C3dError
+pub fn Parameter::strings(Self) -> Array[String] raise C3dError
 
 // Type aliases
 
