@@ -35,12 +35,8 @@ test "fractional residuals are preserved with explicit scale" {
     },
   )
   assert_true(
-    try {
-      let _ = write(t, residual_scale=0.1)
-      false
-    } catch {
-      _ => true
-    },
+    (read(write(t, residual_scale=0.1)).frames[0].points[0].residual - 0.5).abs() <
+    0.000001,
   )
 }
 

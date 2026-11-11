@@ -99,17 +99,19 @@ pub fn write(
   limits~ : Limits = Limits::default(),
 ) -> Bytes raise C3dError {
   trial.validate(limits~)
+  let residual_scale = Float::from_double(residual_scale).to_double()
   require(
-    finite(residual_scale) &&
-    residual_scale > 0.0 &&
-    Float::from_double(residual_scale).to_double() == residual_scale,
-    "residual scale must be positive exactly representable float32",
+    finite(residual_scale) && residual_scale > 0.0,
+    "residual scale must be a positive finite float32",
   )
   require(
     trial.labels.length() <= 255 && trial.analog_labels.length() <= 255,
     "canonical writer supports at most 255 channels of each kind",
   )
-  let preliminary = metadata_bytes(canonical_metadata(trial, 0, residual_scale))
+  validate_metadata(trial.metadata, limits)
+  let canonical = canonical_metadata(trial, 0, residual_scale)
+  validate_metadata(canonical, limits)
+  let preliminary = metadata_bytes(canonical)
   let data_block = 2 + preliminary.length() / 512
   let metadata = metadata_bytes(
     canonical_metadata(trial, data_block, residual_scale),
@@ -149,12 +151,15 @@ pub fn write(
       let packed = if p.residual < 0.0 {
         -1
       } else {
+        let units = p.residual / residual_scale
+        let quantized = (units + 0.5).floor()
         require(
-          p.residual / residual_scale <= 255.0 &&
-          p.residual / residual_scale == (p.residual / residual_scale).trunc(),
-          "residual must be an exact multiple of scale in 0..255 units",
+          finite(units) &&
+          quantized <= 255.0 &&
+          (units - quantized).abs() <= 0.00001,
+          "residual must be an exact scale multiple within 1e-5 encoded units",
         )
-        (p.cameras << 8) | (p.residual / residual_scale).to_int()
+        (p.cameras << 8) | quantized.to_int()
       }
       put32f(header, packed.to_double())
     }
