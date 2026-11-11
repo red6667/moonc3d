@@ -10,6 +10,10 @@ pub fn decode_point_record(Bytes, Double, big_endian? : Bool) -> Point raise C3d
 
 pub fn inspect(Bytes, limits? : Limits) -> Layout raise C3dError
 
+pub fn read(Bytes, limits? : Limits) -> Trial raise C3dError
+
+pub fn read_frame(Bytes, Int32, limits? : Limits) -> Frame raise C3dError
+
 pub fn read_header(Bytes, limits? : Limits) -> Header raise C3dError
 
 pub fn read_metadata(Bytes, limits? : Limits) -> Metadata raise C3dError
