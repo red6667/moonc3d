@@ -1,0 +1,15 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "red6667/moonc3d"
+
+// Values
+
+// Errors
+pub suberror C3dError {
+  Invalid(String)
+} derive(Show)
+
+// Types and methods
+
+// Type aliases
+
+// Traits
