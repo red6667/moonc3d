@@ -30,12 +30,13 @@ def reference_frames(c3d, data):
     frames = list(reader.read_frames(copy=True, camera_sum=False))
     return reader, frames
 
-def make_fixture(c3d, floating):
+def make_fixture(c3d, floating, unsigned=False):
     w = c3d.Writer(point_rate=100., analog_rate=200., point_scale=-0.5 if floating else 0.5, gen_scale=0.25)
     w.set_point_labels(["heel", "toe"])
     w.set_analog_labels(["Fx", "EMG"])
     w.set_analog_scales([0.5, -2.])
-    w.set_analog_offsets([100, -20])
+    w.set_analog_offsets([-25536, -15536] if unsigned else [100, -20])
+    if unsigned: w.analog_group.set_str("FORMAT", "Unsigned samples", "UNSIGNED", 8)
     w.set_start_frame(7)
     frames = []
     for i in range(3):
@@ -116,12 +117,15 @@ def main():
     with tempfile.TemporaryDirectory(prefix="moonc3d-reference-") as tmp:
         c3d=load_reference(tmp, args.reference_source)
         results=[]
-        for floating in (False, True):
-            intel=make_fixture(c3d,floating)
+        for floating, unsigned in [(False, False), (True, False), (False, True)]:
+            intel=make_fixture(c3d,floating,unsigned)
             for endian,data in [("intel",intel),("mips",to_mips(intel))]:
                 compare(c3d,data)
-                name=("float" if floating else "integer")+"-"+endian
+                name=("unsigned" if unsigned else "float" if floating else "integer")+"-"+endian
                 results.append(dict(case=name,input_sha256=hashlib.sha256(data).hexdigest(),bytes=len(data),status="pass"))
+                fixture = ROOT/"fixtures"/(name+".hex")
+                if not args.emit_fixtures:
+                    assert bytes.fromhex(fixture.read_text()) == data, "stored fixture drift"
                 if args.emit_fixtures:
                     dest=ROOT/"fixtures";dest.mkdir(exist_ok=True)
                     (dest/(name+".hex")).write_text(data.hex()+"\n")

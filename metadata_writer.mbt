@@ -8,7 +8,7 @@ fn parameter_record(
 ) -> Unit raise C3dError {
   let nb = ascii_bytes(name)
   require(
-    nb.length() > 0 && nb.length() <= 127 && payload.length() <= 65533,
+    nb.length() > 0 && nb.length() <= 127 && payload.length() <= 32765,
     "record too large",
   )
   put8(out, if locked { -nb.length() } else { nb.length() })
