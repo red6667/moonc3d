@@ -115,3 +115,21 @@ fn counter(
     _ => x
   }
 }
+
+///|
+pub extend Parameter with @debug.Debug::{to_repr}
+
+///|
+pub extend Parameter with Eq::{equal, not_equal}
+
+///|
+pub extend Group with @debug.Debug::{to_repr}
+
+///|
+pub extend Group with Eq::{equal, not_equal}
+
+///|
+pub extend Metadata with @debug.Debug::{to_repr}
+
+///|
+pub extend Metadata with Eq::{equal, not_equal}

@@ -104,7 +104,7 @@ pub fn Trial::validate(
 
 ///|
 fn validate_labels(labels : Array[String]) -> Unit raise C3dError {
-  let seen : Map[String, Bool] = {}
+  let seen : Map[String, Bool] = Map([])
   for label in labels {
     let b = ascii_bytes(label)
     require(
@@ -120,3 +120,21 @@ fn validate_labels(labels : Array[String]) -> Unit raise C3dError {
 pub fn Trial::duration(self : Trial) -> Double {
   self.frames.length().to_double() / self.point_rate
 }
+
+///|
+pub extend Point with @debug.Debug::{to_repr}
+
+///|
+pub extend Point with Eq::{equal, not_equal}
+
+///|
+pub extend Frame with @debug.Debug::{to_repr}
+
+///|
+pub extend Frame with Eq::{equal, not_equal}
+
+///|
+pub extend Trial with @debug.Debug::{to_repr}
+
+///|
+pub extend Trial with Eq::{equal, not_equal}

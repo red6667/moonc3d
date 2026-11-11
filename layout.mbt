@@ -160,3 +160,9 @@ pub fn inspect(
     frame_bytes,
   }
 }
+
+///|
+pub extend Layout with @debug.Debug::{to_repr}
+
+///|
+pub extend Layout with Eq::{equal, not_equal}

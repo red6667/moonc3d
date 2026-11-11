@@ -1,7 +1,7 @@
 ///|
 pub suberror C3dError {
   Invalid(String)
-} derive(Show)
+} derive(Debug)
 
 ///|
 fn require(ok : Bool, message : String) -> Unit raise C3dError {
@@ -164,3 +164,6 @@ fn product(dims : Array[Int32], limit : Int32) -> Int32 raise C3dError {
   }
   n
 }
+
+///|
+pub extend C3dError with @debug.Debug::{to_repr}

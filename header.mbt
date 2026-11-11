@@ -100,3 +100,15 @@ pub fn read_header(
     processor,
   }
 }
+
+///|
+pub extend Limits with @debug.Debug::{to_repr}
+
+///|
+pub extend Limits with Eq::{equal, not_equal}
+
+///|
+pub extend Header with @debug.Debug::{to_repr}
+
+///|
+pub extend Header with Eq::{equal, not_equal}

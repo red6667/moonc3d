@@ -117,3 +117,15 @@ pub fn Trial::analog_quality(
   }
   out
 }
+
+///|
+pub extend MarkerQuality with @debug.Debug::{to_repr}
+
+///|
+pub extend MarkerQuality with Eq::{equal, not_equal}
+
+///|
+pub extend AnalogQuality with @debug.Debug::{to_repr}
+
+///|
+pub extend AnalogQuality with Eq::{equal, not_equal}

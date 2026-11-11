@@ -6,9 +6,15 @@ import {
 }
 
 // Values
+pub fn decode_hex(String, max_bytes? : Int32) -> Bytes raise C3dError
+
 pub fn decode_point_record(Bytes, Double, big_endian? : Bool) -> Point raise C3dError
 
+pub fn encode_hex(Bytes) -> String
+
 pub fn inspect(Bytes, limits? : Limits) -> Layout raise C3dError
+
+pub fn process_json(String) -> String raise C3dError
 
 pub fn read(Bytes, limits? : Limits) -> Trial raise C3dError
 
@@ -23,7 +29,8 @@ pub fn write(Trial, residual_scale? : Double, limits? : Limits) -> Bytes raise C
 // Errors
 pub suberror C3dError {
   Invalid(String)
-} derive(Show)
+} derive(@debug.Debug)
+pub fn C3dError::to_repr(Self) -> @debug.Repr
 
 // Types and methods
 pub(all) struct AnalogQuality {
@@ -33,17 +40,26 @@ pub(all) struct AnalogQuality {
   maximum : Double
   mean : Double
 } derive(Eq, @debug.Debug)
+pub fn AnalogQuality::equal(Self, Self) -> Bool
+pub fn AnalogQuality::not_equal(Self, Self) -> Bool
+pub fn AnalogQuality::to_repr(Self) -> @debug.Repr
 
 pub(all) struct AnalogSeries {
   label : String
   seconds : Array[Double]
   samples : Array[Double]
 } derive(Eq, @debug.Debug)
+pub fn AnalogSeries::equal(Self, Self) -> Bool
+pub fn AnalogSeries::not_equal(Self, Self) -> Bool
+pub fn AnalogSeries::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Frame {
   points : Array[Point]
   analog : Array[Array[Double]]
 } derive(Eq, @debug.Debug)
+pub fn Frame::equal(Self, Self) -> Bool
+pub fn Frame::not_equal(Self, Self) -> Bool
+pub fn Frame::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Group {
   id : Int32
@@ -51,6 +67,9 @@ pub(all) struct Group {
   description : String
   locked : Bool
 } derive(Eq, @debug.Debug)
+pub fn Group::equal(Self, Self) -> Bool
+pub fn Group::not_equal(Self, Self) -> Bool
+pub fn Group::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Header {
   parameter_block : Int32
@@ -64,6 +83,9 @@ pub(all) struct Header {
   scale : Double
   processor : Int32
 } derive(Eq, @debug.Debug)
+pub fn Header::equal(Self, Self) -> Bool
+pub fn Header::not_equal(Self, Self) -> Bool
+pub fn Header::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Layout {
   header : Header
@@ -76,6 +98,9 @@ pub(all) struct Layout {
   unsigned_analog : Bool
   frame_bytes : Int32
 } derive(Eq, @debug.Debug)
+pub fn Layout::equal(Self, Self) -> Bool
+pub fn Layout::not_equal(Self, Self) -> Bool
+pub fn Layout::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Limits {
   max_bytes : Int32
@@ -86,6 +111,9 @@ pub(all) struct Limits {
   max_parameters : Int32
 } derive(Eq, @debug.Debug)
 pub fn Limits::default() -> Self
+pub fn Limits::equal(Self, Self) -> Bool
+pub fn Limits::not_equal(Self, Self) -> Bool
+pub fn Limits::to_repr(Self) -> @debug.Repr
 
 pub(all) struct MarkerQuality {
   label : String
@@ -96,6 +124,9 @@ pub(all) struct MarkerQuality {
   maximum : Array[Double]?
   mean_residual : Double?
 } derive(Eq, @debug.Debug)
+pub fn MarkerQuality::equal(Self, Self) -> Bool
+pub fn MarkerQuality::not_equal(Self, Self) -> Bool
+pub fn MarkerQuality::to_repr(Self) -> @debug.Repr
 
 pub(all) struct MarkerSeries {
   label : String
@@ -103,12 +134,18 @@ pub(all) struct MarkerSeries {
   seconds : Array[Double]
   samples : Array[Point]
 } derive(Eq, @debug.Debug)
+pub fn MarkerSeries::equal(Self, Self) -> Bool
+pub fn MarkerSeries::not_equal(Self, Self) -> Bool
+pub fn MarkerSeries::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Metadata {
   groups : Array[Group]
   parameters : Array[Parameter]
 } derive(Eq, @debug.Debug)
+pub fn Metadata::equal(Self, Self) -> Bool
 pub fn Metadata::find(Self, String, String) -> Parameter?
+pub fn Metadata::not_equal(Self, Self) -> Bool
+pub fn Metadata::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Parameter {
   group : String
@@ -120,8 +157,11 @@ pub(all) struct Parameter {
   data : Bytes
   big_endian : Bool
 } derive(Eq, @debug.Debug)
+pub fn Parameter::equal(Self, Self) -> Bool
+pub fn Parameter::not_equal(Self, Self) -> Bool
 pub fn Parameter::numbers(Self) -> Array[Double] raise C3dError
 pub fn Parameter::strings(Self) -> Array[String] raise C3dError
+pub fn Parameter::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Point {
   x : Double
@@ -130,6 +170,9 @@ pub(all) struct Point {
   residual : Double
   cameras : Int32
 } derive(Eq, @debug.Debug)
+pub fn Point::equal(Self, Self) -> Bool
+pub fn Point::not_equal(Self, Self) -> Bool
+pub fn Point::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Trial {
   first_frame : Int32
@@ -147,13 +190,17 @@ pub fn Trial::analog_series(Self, String) -> AnalogSeries raise C3dError
 pub fn Trial::convert_units(Self, String) -> Self raise C3dError
 pub fn Trial::crop(Self, Int32, Int32) -> Self raise C3dError
 pub fn Trial::duration(Self) -> Double
+pub fn Trial::equal(Self, Self) -> Bool
 pub fn Trial::frame_time(Self, Int32) -> Double raise C3dError
 pub fn Trial::marker_quality(Self) -> Array[MarkerQuality] raise C3dError
 pub fn Trial::marker_series(Self, String) -> MarkerSeries raise C3dError
+pub fn Trial::not_equal(Self, Self) -> Bool
 pub fn Trial::points_csv(Self, max_rows? : Int32) -> String raise C3dError
 pub fn Trial::rename(Self, points~ : Array[String], analog~ : Array[String]) -> Self raise C3dError
 pub fn Trial::select(Self, points~ : Array[String], analog~ : Array[String]) -> Self raise C3dError
 pub fn Trial::time_window(Self, Double, Double) -> Self raise C3dError
+pub fn Trial::to_json(Self) -> Json raise C3dError
+pub fn Trial::to_repr(Self) -> @debug.Repr
 pub fn Trial::transform(Self, Array[Double], Array[Double]) -> Self raise C3dError
 pub fn Trial::validate(Self, limits? : Limits) -> Unit raise C3dError
 

@@ -47,3 +47,15 @@ pub fn Trial::analog_series(
     }),
   }
 }
+
+///|
+pub extend MarkerSeries with @debug.Debug::{to_repr}
+
+///|
+pub extend MarkerSeries with Eq::{equal, not_equal}
+
+///|
+pub extend AnalogSeries with @debug.Debug::{to_repr}
+
+///|
+pub extend AnalogSeries with Eq::{equal, not_equal}
