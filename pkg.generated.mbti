@@ -16,6 +16,11 @@ pub suberror C3dError {
 } derive(Show)
 
 // Types and methods
+pub(all) struct Frame {
+  points : Array[Point]
+  analog : Array[Array[Double]]
+} derive(Eq, @debug.Debug)
+
 pub(all) struct Group {
   id : Int32
   name : String
@@ -64,6 +69,27 @@ pub(all) struct Parameter {
 } derive(Eq, @debug.Debug)
 pub fn Parameter::numbers(Self) -> Array[Double] raise C3dError
 pub fn Parameter::strings(Self) -> Array[String] raise C3dError
+
+pub(all) struct Point {
+  x : Double
+  y : Double
+  z : Double
+  residual : Double
+  cameras : Int32
+} derive(Eq, @debug.Debug)
+
+pub(all) struct Trial {
+  first_frame : Int32
+  point_rate : Double
+  analog_per_frame : Int32
+  labels : Array[String]
+  analog_labels : Array[String]
+  units : String
+  metadata : Metadata
+  frames : Array[Frame]
+} derive(Eq, @debug.Debug)
+pub fn Trial::duration(Self) -> Double
+pub fn Trial::validate(Self, limits? : Limits) -> Unit raise C3dError
 
 // Type aliases
 
