@@ -11,18 +11,21 @@ fn argument_offset() -> Int32 {
 }
 
 ///|
-fn main {
+fn main raise {
   let args = @env.args()
   if args.length() != argument_offset() + 1 {
     println(
       "{\"error\":\"pass one moonc3d/1 JSON request argument; see README\"}",
     )
+    fail("invalid command arguments")
   } else {
     println(@moonc3d.process_json(args[argument_offset()])) catch {
-      error =>
+      error => {
         println(
           Json::object({ "error": Json::string(@debug.to_string(error)) }).stringify(),
         )
+        raise error
+      }
     }
   }
 }

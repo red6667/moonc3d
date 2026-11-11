@@ -2,3 +2,4 @@ _build/
 .mooncakes/
 *.zip
 *.c3d
+__pycache__/
