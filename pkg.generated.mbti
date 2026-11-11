@@ -113,6 +113,8 @@ pub(all) struct Trial {
 pub fn Trial::crop(Self, Int32, Int32) -> Self raise C3dError
 pub fn Trial::duration(Self) -> Double
 pub fn Trial::frame_time(Self, Int32) -> Double raise C3dError
+pub fn Trial::rename(Self, points~ : Array[String], analog~ : Array[String]) -> Self raise C3dError
+pub fn Trial::select(Self, points~ : Array[String], analog~ : Array[String]) -> Self raise C3dError
 pub fn Trial::time_window(Self, Double, Double) -> Self raise C3dError
 pub fn Trial::validate(Self, limits? : Limits) -> Unit raise C3dError
 

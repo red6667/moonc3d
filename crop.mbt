@@ -1,4 +1,5 @@
 // Frame windows are zero-based, half-open; original C3D frame numbers survive cropping.
+
 ///|
 pub fn Trial::crop(
   self : Trial,
