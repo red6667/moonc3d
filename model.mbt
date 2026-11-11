@@ -83,7 +83,10 @@ pub fn Trial::validate(
         "nonfinite point",
       )
       require(
-        p.residual >= -1.0 && p.cameras >= 0 && p.cameras <= 127,
+        (p.residual == -1.0 || p.residual >= 0.0) &&
+        p.cameras >= 0 &&
+        p.cameras <= 127 &&
+        (p.residual >= 0.0 || p.cameras == 0),
         "invalid residual/camera mask",
       )
     }

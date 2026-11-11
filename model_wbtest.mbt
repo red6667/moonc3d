@@ -11,7 +11,7 @@ fn sample_trial() -> Trial {
     metadata: { groups: [], parameters: [], },
     frames: [
       {
-        points: [p, { ..p, residual: -1.0, }],
+        points: [p, { ..p, residual: -1.0, cameras: 0, }],
         analog: [[1.0, 2.0], [3.0, 4.0]],
       },
       { points: [{ ..p, x: 4.5, }, p], analog: [[5.0, 6.0], [7.0, 8.0]], },
