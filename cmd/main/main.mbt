@@ -24,7 +24,7 @@ fn main raise {
         println(
           Json::object({ "error": Json::string(@debug.to_string(error)) }).stringify(),
         )
-        raise error
+        fail("C3D command failed")
       }
     }
   }

@@ -43,6 +43,7 @@ jobs:
           moon run examples/ingest --target ${{ matrix.target }}
           moon run examples/edit --target ${{ matrix.target }}
           moon run examples/export --target ${{ matrix.target }}
+          moon run examples/quickstart --target ${{ matrix.target }}
       - uses: actions/setup-python@v5
         if: matrix.target == 'js'
         with:

@@ -1,0 +1,5 @@
+import {
+  "red6667/moonc3d",
+}
+
+pkgtype(kind: "executable")
