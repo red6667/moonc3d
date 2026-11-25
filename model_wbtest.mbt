@@ -8,6 +8,7 @@ fn sample_trial() -> Trial {
     labels: ["L", "R"],
     analog_labels: ["Fx", "EMG"],
     units: "mm",
+    header_events: [],
     metadata: { groups: [], parameters: [], },
     frames: [
       {

@@ -22,9 +22,13 @@ pub fn read_frame(Bytes, Int32, limits? : Limits) -> Frame raise C3dError
 
 pub fn read_header(Bytes, limits? : Limits) -> Header raise C3dError
 
+pub fn read_header_events(Bytes, limits? : Limits) -> Array[HeaderEvent] raise C3dError
+
 pub fn read_metadata(Bytes, limits? : Limits) -> Metadata raise C3dError
 
-pub fn write(Trial, residual_scale? : Double, limits? : Limits) -> Bytes raise C3dError
+pub fn validate_file(Bytes, limits? : Limits) -> Unit raise C3dError
+
+pub fn write(Trial, residual_scale? : Double, processor? : Int32, integer? : Bool, unsigned_analog? : Bool, analog_scales? : Array[Double]?, analog_offsets? : Array[Double]?, limits? : Limits) -> Bytes raise C3dError
 
 // Errors
 pub suberror C3dError {
@@ -86,6 +90,15 @@ pub(all) struct Header {
 pub fn Header::equal(Self, Self) -> Bool
 pub fn Header::not_equal(Self, Self) -> Bool
 pub fn Header::to_repr(Self) -> @debug.Repr
+
+pub(all) struct HeaderEvent {
+  time : Double
+  label : String
+  displayed : Bool
+} derive(Eq, @debug.Debug)
+pub fn HeaderEvent::equal(Self, Self) -> Bool
+pub fn HeaderEvent::not_equal(Self, Self) -> Bool
+pub fn HeaderEvent::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Layout {
   header : Header
@@ -155,6 +168,7 @@ pub(all) struct Parameter {
   element_size : Int32
   dimensions : Array[Int32]
   data : Bytes
+  vax : Bool
   big_endian : Bool
 } derive(Eq, @debug.Debug)
 pub fn Parameter::equal(Self, Self) -> Bool
@@ -181,6 +195,7 @@ pub(all) struct Trial {
   labels : Array[String]
   analog_labels : Array[String]
   units : String
+  header_events : Array[HeaderEvent]
   metadata : Metadata
   frames : Array[Frame]
 } derive(Eq, @debug.Debug)

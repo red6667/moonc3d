@@ -15,12 +15,12 @@ fn header_fixture() -> Bytes {
 }
 
 ///|
-test "header accepts Intel and rejects unsupported processor" {
+test "header accepts Intel and rejects invalid processor" {
   let h = read_header(header_fixture())
   assert_eq(h.frame_rate, 60.0)
   assert_eq(h.scale, -1.0)
   let a = header_fixture().to_array()
-  a[515] = 85
+  a[515] = 87
   let bad = try {
     let _ = read_header(Bytes::from_array(a[:]))
     false

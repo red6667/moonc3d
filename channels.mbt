@@ -40,6 +40,8 @@ pub fn Trial::select(
   })
   {
     ..self,
+    metadata: edited_metadata(self.metadata, channels=true),
+    header_events: [],
     labels: points.copy(),
     analog_labels: analog.copy(),
     analog_per_frame: if ai.length() == 0 {

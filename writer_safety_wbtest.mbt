@@ -14,7 +14,7 @@ test "unit converted residuals survive float32 scale representation" {
 }
 
 ///|
-test "independent metadata is preserved and stale channel groups discarded" {
+test "independent and optional metadata survive an unedited transcode" {
   let t = sample_trial()
   let custom = number_parameter("CUSTOM", "GAIN", [2.0], false)
   let metadata : Metadata = {
@@ -22,11 +22,15 @@ test "independent metadata is preserved and stale channel groups discarded" {
       { id: 3, name: "CUSTOM", description: "independent", locked: false, },
       { id: 4, name: "EVENT", description: "stale", locked: false, },
     ],
-    parameters: [custom, text_parameter("EVENT", "LABELS", ["old"])],
+    parameters: [
+      custom,
+      number_parameter("EVENT", "USED", [0.0], true),
+      text_parameter("EVENT", "LABELS", ["old"]),
+    ],
   }
   let r = read(write({ ..t, metadata, }, residual_scale=0.5))
   assert_eq(r.metadata.find("CUSTOM", "GAIN").unwrap().numbers(), [2.0])
-  assert_eq(r.metadata.find("EVENT", "LABELS"), None)
+  assert_eq(r.metadata.find("EVENT", "LABELS").unwrap().strings(), ["old"])
   let bad = {
     ..metadata,
     groups: [{ id: 1, name: "point", description: "", locked: false, }],

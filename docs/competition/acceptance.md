@@ -10,8 +10,8 @@
 | 完整中文 README | 根 README：目标、精确安装、完整可运行例子、API、命令、限制 |
 | CI 检查/构建/测试 | .github/workflows/ci.yml 四后端矩阵，严格 warning gate |
 | 可运行例子 | examples/ingest、edit、export，均含实际断言 |
-| 核心测试 | 根 *_test.mbt、*_wbtest.mbt，共 33 个 test block |
-| 实际包发布 | 精确 red6667/moonc3d@0.1.0 公开 manifest、源文件及干净外部消费者 |
+| 核心测试 | 根 *_test.mbt、*_wbtest.mbt，共 38 个 test block |
+| 模块发布与外部消费 | 对照精确版本的 MoonCakes manifest、源码包摘要与新建无凭据消费者；按下文命令安装、检查并运行 |
 | OSI 许可证/归属 | LICENSE（MIT）、THIRD_PARTY.md、保留 py-c3d MIT 许可证 |
 
 ## 测试语义
@@ -25,6 +25,10 @@
 `scripts/audit.py` 只统计根非测试 *.mbt，排除 tests、examples、cmd、脚本、生成接口、文档、fixture。输出物理行及非空行。主要模块分别处理二进制、布局/参数、采样解码、写出、编辑、序列、质量、CSV 和宿主协议，不靠生成静态内容扩充。
 
 历史按提交路径和差异人工复核：从有界二进制到规范写出、编辑、导出、独立验证、安全修复及 CI，每一步都有可区分工程作用。非空提交仅是自动筛查，不能机械视为有效提交。前 23 个提交均对应实际能力或回归修复；最终计数可从 audit 输出复现。
+
+## 本次修复验证
+
+38 个测试在 wasm-gc、wasm、JavaScript 后端通过；三个后端的严格 check 与 build 通过，三个完整示例在上述后端运行通过。Windows Native check 通过，但 native test/build 因本机没有 MSVC/clang-cl 与 Windows SDK 无法执行；须由 Linux CI 验证。六组 py-c3d 差分及独立反读通过。DEC/VAX、扩展帧、头部事件和超 255 标签数组有直接回归测试。官方公开 C3D 样本尚未接入 MoonBit 的运行测试。
 
 ## 发布后验证
 

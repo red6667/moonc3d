@@ -12,7 +12,7 @@ pub(all) struct Limits {
 pub fn Limits::default() -> Limits {
   {
     max_bytes: 67108864,
-    max_frames: 65535,
+    max_frames: 1000000,
     max_points: 1024,
     max_channels: 1024,
     max_samples: 4000000,
@@ -52,10 +52,10 @@ pub fn read_header(
   )
   let processor = bytes[(pb - 1) * 512 + 3].to_int()
   require(
-    processor == 84 || processor == 86,
-    "only Intel IEEE and MIPS IEEE processors supported",
+    processor == 84 || processor == 85 || processor == 86,
+    "invalid C3D processor (expected 84, 85 or 86)",
   )
-  let c = Cursor::new(bytes, 2, 24, processor == 86)
+  let c = Cursor::new(bytes, 2, 24, processor == 86, dec=processor == 85)
   let point_count = c.u16()
   let analog_values = c.u16()
   let first_frame = c.u16()
@@ -65,11 +65,6 @@ pub fn read_header(
   let data_block = c.u16()
   let analog_per_frame = c.u16()
   let frame_rate = c.f32()
-  require(first_frame >= 1 && last_frame >= first_frame, "invalid frame range")
-  require(
-    last_frame - first_frame + 1 <= limits.max_frames,
-    "frame budget exceeded",
-  )
   require(point_count <= limits.max_points, "point budget exceeded")
   require(finite(scale) && scale != 0.0, "invalid point scale")
   require(finite(frame_rate) && frame_rate > 0.0, "invalid frame rate")
@@ -120,7 +115,7 @@ fn validate_limits(limits : Limits) -> Unit raise C3dError {
     limits.max_bytes >= 512 &&
     limits.max_bytes <= 268435456 &&
     limits.max_frames > 0 &&
-    limits.max_frames <= 65535 &&
+    limits.max_frames <= 16777216 &&
     limits.max_points >= 0 &&
     limits.max_points <= 65535 &&
     limits.max_channels >= 0 &&

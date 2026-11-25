@@ -76,7 +76,7 @@ test "extended frame metadata cannot silently truncate a trial" {
   let m : Metadata = { groups: [], parameters: [p], }
   assert_true(
     try {
-      verify_extended_frames(
+      let _ = verify_extended_frames(
         m,
         read_header(write(sample_trial(), residual_scale=0.5)),
       )

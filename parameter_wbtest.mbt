@@ -8,6 +8,7 @@ test "typed metadata parameters and case-insensitive lookup" {
     element_size: -1,
     dimensions: [4, 2],
     data: b"L   R   ",
+    vax: false,
     big_endian: false,
   }
   assert_eq(p.strings(), ["L", "R"])

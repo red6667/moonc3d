@@ -21,6 +21,7 @@ pub(all) struct Trial {
   labels : Array[String]
   analog_labels : Array[String]
   units : String
+  header_events : Array[HeaderEvent]
   metadata : Metadata
   frames : Array[Frame]
 } derive(Debug, Eq)
@@ -32,15 +33,14 @@ pub fn Trial::validate(
 ) -> Unit raise C3dError {
   validate_limits(limits)
   require(
-    self.first_frame >= 1 &&
+    self.first_frame >= 0 &&
     self.frames.length() > 0 &&
     self.frames.length() <= limits.max_frames,
     "invalid trial frame range",
   )
   require(
-    self.first_frame <= 65535 &&
-    self.frames.length() <= 65536 - self.first_frame,
-    "extended frame numbering unsupported",
+    self.frames.length() - 1 <= 2147483647 - self.first_frame,
+    "trial frame number exceeds signed 32-bit range",
   )
   require(
     finite(self.point_rate) && self.point_rate > 0.0,
@@ -74,6 +74,18 @@ pub fn Trial::validate(
     (per_frame == 0 || self.frames.length() <= limits.max_samples / per_frame),
     "trial sample budget exceeded",
   )
+  require(
+    self.first_frame >= 0 &&
+    self.frames.length() - 1 <= 2147483647 - self.first_frame,
+    "trial frame range overflow",
+  )
+  require(self.header_events.length() <= 18, "more than eighteen header events")
+  for e in self.header_events {
+    require(
+      finite(e.time) && e.time >= 0.0 && ascii_bytes(e.label).length() <= 4,
+      "invalid header event",
+    )
+  }
   validate_labels(self.labels)
   validate_labels(self.analog_labels)
   let _ = ascii_bytes(self.units)

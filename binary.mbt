@@ -21,6 +21,7 @@ priv struct Cursor {
   mut pos : Int32
   end : Int32
   big : Bool
+  dec : Bool
 }
 
 ///|
@@ -29,12 +30,13 @@ fn Cursor::new(
   start : Int32,
   end : Int32,
   big : Bool,
+  dec~ : Bool = false,
 ) -> Cursor raise C3dError {
   require(
     start >= 0 && end >= start && end <= data.length(),
     "invalid byte range",
   )
-  { data, pos: start, end, big, }
+  { data, pos: start, end, big, dec, }
 }
 
 ///|
@@ -80,6 +82,9 @@ fn Cursor::i16(self : Cursor) -> Int32 raise C3dError {
 fn Cursor::f32(self : Cursor) -> Double raise C3dError {
   let a = self.u16()
   let b = self.u16()
+  if self.dec {
+    return decode_vax(a, b)
+  }
   let bits = if self.big { (a << 16) | b } else { (b << 16) | a }
   Float::reinterpret_from_int(bits).to_double()
 }

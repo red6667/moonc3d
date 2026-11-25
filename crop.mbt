@@ -14,6 +14,8 @@ pub fn Trial::crop(
   {
     ..self,
     first_frame: self.first_frame + start,
+    metadata: edited_metadata(self.metadata, timing=true),
+    header_events: [],
     frames: Array::makei(end - start, i => self.frames[start + i]),
   }
 }

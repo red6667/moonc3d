@@ -7,6 +7,7 @@ fn main raise {
     labels: ["heel"],
     analog_labels: ["Fx"],
     units: "mm",
+    header_events: [],
     metadata: { groups: [], parameters: [], },
     frames: [
       {

@@ -17,16 +17,14 @@ fn labels_from(
   group : String,
   count : Int32,
 ) -> Array[String] raise C3dError {
-  match m.find(group, "LABELS") {
-    Some(p) => {
-      let a = p.strings()
-      require(a.length() >= count, "insufficient channel labels")
-      let labels = Array::makei(count, i => a[i])
-      validate_labels(labels)
-      labels
-    }
-    None => Array::makei(count, i => group + "_" + (i + 1).to_string())
+  let a = metadata_strings(m, group, "LABELS")
+  if a.length() == 0 && count > 0 {
+    return Array::makei(count, i => group + "_" + (i + 1).to_string())
   }
+  require(a.length() >= count, "insufficient channel labels")
+  let labels = Array::makei(count, i => a[i])
+  validate_labels(labels)
+  labels
 }
 
 ///|
@@ -36,14 +34,12 @@ fn numeric_vector(
   n : Int32,
   default : Double,
 ) -> Array[Double] raise C3dError {
-  match m.find("ANALOG", name) {
-    None => Array::make(n, default)
-    Some(p) => {
-      let a = p.numbers()
-      require(a.length() >= n, "insufficient analog calibration values")
-      Array::makei(n, i => a[i])
-    }
+  let a = metadata_numbers(m, "ANALOG", name)
+  if a.length() == 0 {
+    return Array::make(n, default)
   }
+  require(a.length() >= n, "insufficient analog calibration values")
+  Array::makei(n, i => a[i])
 }
 
 ///|
@@ -53,21 +49,20 @@ pub fn inspect(
 ) -> Layout raise C3dError {
   let h = read_header(bytes, limits~)
   let m = read_metadata(bytes, limits~)
-  verify_extended_frames(m, h)
+  let h = verify_extended_frames(m, h)
+  require(
+    h.last_frame - h.first_frame + 1 <= limits.max_frames,
+    "frame budget exceeded",
+  )
   let nchan = if h.analog_per_frame == 0 {
     0
   } else {
     h.analog_values / h.analog_per_frame
   }
   require(
-    scalar(m, "POINT", "USED", h.point_count.to_double()) ==
+    counter_in(m, "POINT", "USED", h.point_count.to_double()) ==
     h.point_count.to_double(),
     "POINT:USED disagrees with header",
-  )
-  require(
-    counter(m, "FRAMES", (h.last_frame - h.first_frame + 1).to_double()) ==
-    (h.last_frame - h.first_frame + 1).to_double(),
-    "extended/inconsistent POINT:FRAMES unsupported",
   )
   require(
     counter(m, "DATA_START", h.data_block.to_double()) ==
@@ -84,7 +79,7 @@ pub fn inspect(
     "POINT:SCALE disagrees with header",
   )
   require(
-    scalar(m, "ANALOG", "USED", nchan.to_double()) == nchan.to_double(),
+    counter_in(m, "ANALOG", "USED", nchan.to_double()) == nchan.to_double(),
     "ANALOG:USED disagrees with header",
   )
   let arate = scalar(
@@ -133,20 +128,18 @@ pub fn inspect(
     scales[i] *= gen
     require(finite(scales[i]) && scales[i] != 0.0, "invalid analog scale")
   }
+  let frame_count = h.last_frame - h.first_frame + 1
+  require(frame_count > 0, "invalid effective frame range")
   let values = h.point_count * 4 + h.analog_values
   require(
     values <= limits.max_samples &&
-    (
-      values == 0 ||
-      h.last_frame - h.first_frame + 1 <= limits.max_samples / values
-    ),
+    (values == 0 || frame_count <= limits.max_samples / values),
     "sample budget exceeded",
   )
   let frame_bytes = values * (if h.scale < 0.0 { 4 } else { 2 })
   let available = bytes.length() - (h.data_block - 1) * 512
   require(
-    frame_bytes == 0 ||
-    h.last_frame - h.first_frame + 1 <= available / frame_bytes,
+    frame_bytes == 0 || frame_count <= available / frame_bytes,
     "truncated frame data",
   )
   {
@@ -167,40 +160,3 @@ pub extend Layout with @debug.Debug::{to_repr}
 
 ///|
 pub extend Layout with Eq::{equal, not_equal}
-
-///|
-fn verify_extended_frames(m : Metadata, h : Header) -> Unit raise C3dError {
-  require(
-    scalar(
-      m,
-      "POINT",
-      "LONG_FRAMES",
-      (h.last_frame - h.first_frame + 1).to_double(),
-    ) ==
-    (h.last_frame - h.first_frame + 1).to_double(),
-    "extended frame counts unsupported",
-  )
-  for name in ["ACTUAL_START_FIELD", "ACTUAL_END_FIELD"] {
-    match m.find("TRIAL", name) {
-      None => ()
-      Some(p) => {
-        require(
-          p.element_size == 2 && p.data.length() == 4,
-          "invalid extended frame field",
-        )
-        let c = Cursor::new(p.data, 0, 4, p.big_endian)
-        let low = c.u16().to_double()
-        let value = low + c.u16().to_double() * 65536.0
-        let expected = if name == "ACTUAL_START_FIELD" {
-          h.first_frame
-        } else {
-          h.last_frame
-        }
-        require(
-          value == expected.to_double(),
-          "extended frame numbering unsupported",
-        )
-      }
-    }
-  }
-}

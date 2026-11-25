@@ -6,7 +6,13 @@ fn frame_at(bytes : Bytes, l : Layout, index : Int32) -> Frame raise C3dError {
     "frame index out of range",
   )
   let start = (h.data_block - 1) * 512 + index * l.frame_bytes
-  let c = Cursor::new(bytes, start, start + l.frame_bytes, h.processor == 86)
+  let c = Cursor::new(
+    bytes,
+    start,
+    start + l.frame_bytes,
+    h.processor == 86,
+    dec=h.processor == 85,
+  )
   let points = []
   for _ in 0..<h.point_count {
     points.push(read_point(c, h.scale))
@@ -58,6 +64,7 @@ pub fn read(
     analog_labels: l.analog_labels,
     units: l.units,
     metadata: l.metadata,
+    header_events: read_header_events(bytes, limits~),
     frames,
   }
   t.validate(limits~)

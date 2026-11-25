@@ -77,6 +77,7 @@ pub fn read_metadata(
             dimensions: dims,
             data,
             big_endian: h.processor == 86,
+            vax: h.processor == 85,
           },
         ),
       )

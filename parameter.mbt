@@ -7,6 +7,7 @@ pub(all) struct Parameter {
   element_size : Int32
   dimensions : Array[Int32]
   data : Bytes
+  vax : Bool
   big_endian : Bool
 } derive(Debug, Eq)
 
@@ -50,7 +51,13 @@ pub fn Parameter::numbers(self : Parameter) -> Array[Double] raise C3dError {
     n * self.element_size == self.data.length(),
     "parameter shape mismatch",
   )
-  let c = Cursor::new(self.data, 0, self.data.length(), self.big_endian)
+  let c = Cursor::new(
+    self.data,
+    0,
+    self.data.length(),
+    self.big_endian,
+    dec=self.vax,
+  )
   let out = []
   for _ in 0..<n {
     let x = if self.element_size == 1 {

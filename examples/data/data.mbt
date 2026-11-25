@@ -14,6 +14,7 @@ pub fn sample() -> @moonc3d.Trial {
     labels: ["heel", "toe"],
     analog_labels: ["Fx"],
     units: "mm",
+    header_events: [],
     metadata: { groups: [], parameters: [], },
     frames: [
       {

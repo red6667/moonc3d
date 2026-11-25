@@ -31,7 +31,12 @@ pub fn Trial::convert_units(
       },
     }),
   })
-  let out = { ..self, units: unit, frames, }
+  let out = {
+    ..self,
+    units: unit,
+    frames,
+    metadata: edited_metadata(self.metadata, geometry=true),
+  }
   out.validate()
   out
 }
@@ -76,6 +81,7 @@ pub fn Trial::transform(
   require((det - 1.0).abs() <= 0.0000001, "rotation must preserve handedness")
   let out = {
     ..self,
+    metadata: edited_metadata(self.metadata, geometry=true),
     frames: self.frames.map(f => {
       ..f,
       points: f.points.map(p => {
